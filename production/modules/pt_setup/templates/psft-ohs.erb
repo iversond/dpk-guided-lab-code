@@ -1,0 +1,272 @@
+#!/bin/bash
+#
+# chkconfig: 35 96 14
+# description: This is a program that is responsible for taking care of
+# configuring the Oracle HTTP Web Server
+#
+
+if [ -f /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ]; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 1
+fi
+
+unset TMPDIR
+
+SCRIPT_NAME=$(basename $(readlink -nf $0))
+LOG_FILE=/var/log/$SCRIPT_NAME.log
+OHSDOM=<%= @domain_name %>
+OHS_ADMIN=<%= @os_user %>
+OHS_LISTEN_PORT=<%= @listen_port %>
+OHS_DOMAIN_HOME=<%= @domain_home_dir %>
+OHS_INSTANCE_NAME="ohs1"
+PROG_PREFIX="PeopleSoft OHS"
+PROG="$PROG_PREFIX Domain $OHSDOM"
+
+check_ohs_installed() {
+  local ret=0
+
+  if [ -f $OHS_DOMAIN_HOME/webserv/$OHSDOM/config/config.xml ]; then
+    ret=1
+  else
+    ret=0
+  fi
+  return $ret
+}
+
+check_ohs_running() {
+  local ret=0
+  ohs_status=""
+
+  ohs_status=$(netstat -an | grep $OHS_LISTEN_PORT | awk '{print $6}')
+  if [ "$ohs_status" == "LISTEN" ]; then
+    ret=1
+  else
+    ret=0
+  fi
+  return $ret
+}
+
+check_nm_running() {
+  local ret=0
+  nm_pid=""
+
+  nm_pid=$(pgrep -f weblogic.NodeManager)
+  if [ "$nm_pid" != "" ]; then
+    ret=1
+  else
+    ret=0
+  fi
+  return $ret
+}
+
+log_message() {
+  echo "[LOG]  $(date +'%b %d %H:%M:%S') ${0##*/}: $*" >> $LOG_FILE
+}
+
+# function start OHS domain
+start_ohs () {
+  ohs_nm_ret=0
+
+  # check if OHS is configured
+  check_ohs_installed
+  ohs_installed=$?
+
+  prog="Starting $PROG_PREFIX Node Manager"
+  echo -n "$prog: "
+  log_message "$prog"
+
+  # check if OHS is configured
+  if [ $ohs_installed == 1 ]; then
+    # check if the  Node manager is running
+    check_nm_running
+    if [ $? -eq 1 ]; then
+      log_message "$PROG_PREFIX Node Manager is already started" >/dev/null 2>&1
+      success
+      ohs_nm_ret=0
+    else
+      su - $OHS_ADMIN -c "cd $OHS_DOMAIN_HOME/webserv/$OHSDOM/bin && nohup ./startNodeManager.sh&" 1>> $LOG_FILE 2>&1
+      ret=$?
+      [ $ret -eq 0 ] && success || failure
+    fi
+    log_message "Started $PROG_PREFIX Node Manager"
+  else
+    log_message "$PROG_PREFIX Domain is not configured on this host"
+    failure
+    ohs_nm_ret=1
+  fi
+  echo
+
+  ohs_inst_ret=0
+  prog="Starting $PROG_PREFIX Domain Instance $OHS_INSTANCE_NAME"
+  echo -n "$prog: "
+  log_message "$prog"
+
+  if [ $ohs_installed == 1 ]; then
+    # check if the OHS instance is already stopped
+    check_ohs_running
+    if [ $? -eq 1 ]; then
+      log_message "$PROG_PREFIX Domain Instance is already started" >/dev/null 2>&1
+      success
+    else
+      su - $OHS_ADMIN -c "$OHS_DOMAIN_HOME/webserv/$OHSDOM/bin/startComponent.sh $OHS_INSTANCE_NAME" 1>>$LOG_FILE 2>&1
+      ohs_inst_ret=$?
+      [ $ohs_inst_ret -eq 0 ] && success || failure
+    fi
+    log_message "Started $PROG_PREFIX Domain Instance $OHS_INSTANCE_NAME"
+  else
+    log_message "$PROG_PREFIX Domain is not configured on this host"
+    failure
+    ohs_inst_ret=1
+  fi
+  echo
+
+  final_ret=$(( oh_nm_ret | ohs_inst_ret ))
+  return $final_ret
+}
+
+# function stop OHS domain
+stop_ohs () {
+  ohs_inst_ret=0
+
+  # check if OHS is configured
+  check_ohs_installed
+  ohs_installed=$?
+
+  prog="Stopping $PROG_PREFIX Domain Instance $OHS_INSTANCE_NAME"
+  echo -n "$prog: "
+  log_message "$prog"
+
+  if [ $ohs_installed == 1 ]; then
+    # check if the OHS instance is already stopped
+    check_ohs_running
+    if [ $? -ne 1 ]; then
+      log_message "$PROG_PREFIX Domain Instance is already stopped" >/dev/null 2>&1
+      success
+    else
+      su - $OHS_ADMIN -c "$OHS_DOMAIN_HOME/webserv/$OHSDOM/bin/stopComponent.sh $OHS_INSTANCE_NAME" 1>>$LOG_FILE 2>&1
+      ohs_inst_ret=$?
+      [ $ohs_inst_ret -eq 0 ] && success || failure
+    fi
+    log_message "Stopped $PROG_PREFIX Domain Instance $OHS_INSTANCE_NAME"
+  else
+    log_message "$PROG_PREFIX Domain is not configured on this host"
+    failure
+    ohs_inst_ret=1
+  fi
+  echo
+
+  ohs_nm_ret=0
+  prog="Stopping $PROG_PREFIX Node Manager"
+  echo -n "$prog: "
+  log_message "$prog"
+
+  if [ $ohs_installed == 1 ]; then
+    # check if the OHS Node Manager is already stopped
+    nm_pid=$(ps wup $(pgrep -f weblogic.NodeManager) | grep $OHSDOM | awk '{print $2}')
+    if [ "$nm_pid" != "" ]; then
+      kill -9 $nm_pid
+      ohs_nm_ret=$?
+      [ $ohs_nm_ret -eq 0 ] && success || failure
+    else
+      log_message "$PROG_PREFIX Node Manager is already stopped" >/dev/null 2>&1
+      success
+    fi
+    log_message "Stopped $PROG_PREFIX Node Manager"
+  else
+    log_message "$PROG_PREFIX Domain is not configured on this host"
+    failure
+    ohs_nm_ret=1
+  fi
+  echo
+
+  final_ret=$(( oh_inst_ret | ohs_nm_ret ))
+  return $final_ret
+}
+
+start() {
+
+    # start the OHS domain
+    start_ohs
+    ret=$?
+
+    [ $ret -eq 0 ] && touch $LOCKFILE
+    return $ret
+
+}
+
+stop() {
+
+    # stop the OHS domain
+    stop_ohs
+    ret=$?
+
+    [ $ret -eq 0 ] && touch $LOCKFILE
+    return $ret
+}
+
+restart() {
+    stop
+    start
+}
+
+dostatus() {
+  # check if OHS is configured
+  check_ohs_installed
+  if [ $? -eq 1 ]; then
+    # check if the OHS instance is running
+    check_ohs_running
+    if [ $? -eq 1 ]; then
+      echo "$PROG_PREFIX Instance $OHS_INSTANCE_NAME is Up"
+    else
+      echo "$PROG_PREFIX Instance $OHS_INSTANCE_NAME is Down"
+    fi
+    # check if the OHS node manager is running
+    check_nm_running
+    if [ $? -eq 1 ]; then
+      echo "$PROG_PREFIX Node Manager is Up"
+    else
+      echo "$PROG_PREFIX Node Manager is Down"
+    fi
+
+  else
+    echo "$PROG is Not Configured on this Host"
+  fi
+}
+
+# Set path if path not set (if called from /etc/rc)
+case $PATH in
+    "") PATH=/bin:/usr/bin:/sbin:/etc
+        export PATH
+        ;;
+esac
+
+
+if [ "$(id -u)" != "0" ]; then
+    echo "You must be root to run this script."
+    exit 1
+fi
+
+LOCKFILE=<%= @services_lock_dir %>/psft-ohs
+
+# See how we were called
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        dostatus
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac

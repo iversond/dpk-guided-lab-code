@@ -1,0 +1,6 @@
+#!/bin/sh
+
+<% if db2_type == "DB2ODBC" -%>
+db2 uncatalog node <%= db2_node %>
+db2 terminate
+<% end -%>

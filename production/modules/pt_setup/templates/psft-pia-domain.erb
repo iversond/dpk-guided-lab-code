@@ -1,0 +1,166 @@
+#!/bin/bash
+
+if [ -f /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ]; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 1
+fi
+
+unset TMPDIR
+
+SCRIPT_NAME=$(basename $(readlink -nf $0))
+LOG_FILE=/var/log/$SCRIPT_NAME.log
+PIADOM=<%= @domain_name %>
+PIA_ADMIN=<%= @os_user %>
+PIA_CFG_HOME=<%= @ps_cfg_home_dir %>
+PIA_PS_HOME=<%= @ps_home_dir %>
+PROG="PeopleSoft PIA Domain $PIADOM"
+
+check_pia_installed() {
+  local ret=0
+
+  if [ -f $PIA_CFG_HOME/webserv/$PIADOM/config/config.xml ]; then
+    ret=1
+  else
+    ret=0
+  fi
+  return $ret
+}
+
+log_message() {
+  echo "[LOG]  $(date +'%b %d %H:%M:%S') ${0##*/}: $*" >> $LOG_FILE
+}
+
+# function start PIA domain
+start_pia () {
+  ret=0
+
+  echo -n $"Starting $PROG: "
+
+  log_message "Starting $PROG"
+
+  # check if PIA is configured
+  check_pia_installed
+  if [ $? == 1 ]; then
+    # check if the domain is already started
+    status=`ps -ef | grep java | grep $PIA_ADMIN`
+    if [ "$status" != "" ]; then
+      log_message "$PROG has already been started" >/dev/null 2>&1
+      success
+      ret=0
+    else
+      su - $PIA_ADMIN -c "$PIA_CFG_HOME/webserv/$PIADOM/bin/startPIA.sh" 1>>$LOG_FILE 2>&1
+      ret=$?
+      [ $ret -eq 0 ] && success || failure
+    fi
+    log_message "Started $PROG"
+  else
+    log_message "$PROG is not configured on this host"
+    failure
+    ret=1
+  fi
+  echo
+  return $ret
+}
+
+# function stop PIA domain
+stop_pia () {
+  ret=0
+
+  echo -n $"Stopping $PROG: "
+
+  log_message "Stopping $PROG"
+
+  # check if PIA is configured
+  check_pia_installed
+  if [ $? == 1 ]; then
+    # check if the domain is already stopped
+    status=`ps -ef | grep java | grep $PIA_ADMIN`
+    if [ "$status" == "" ]; then
+      log_message "$PROG has already been stopped" >/dev/null 2>&1
+      success
+      ret=0
+    else
+      su - $PIA_ADMIN -c "$PIA_CFG_HOME/webserv/$PIADOM/bin/stopPIA.sh" 1>>$LOG_FILE 2>&1
+      ret=$?
+      [ $ret -eq 0 ] && success || failure
+    fi
+    log_message "Stopped $PROG"
+  else
+    log_message "$PROG is not configured on this host"
+    failure
+    ret=1
+  fi
+  echo
+  return $ret
+}
+
+start() {
+
+    # start the PIA domain
+    start_pia
+    return $?
+}
+
+stop() {
+
+    # stop the PIA domain
+    stop_pia
+    return $?
+}
+
+restart() {
+    stop
+    start
+}
+
+dostatus() {
+  # check if PIA is configured
+  check_pia_installed
+  if [ $? == 1 ]; then
+    # check if the PIA domain is running
+    status=`ps -ef | grep java | grep $PIA_ADMIN`
+    if [ "$status" == "" ]; then
+      echo "$PROG is Down"
+    else
+      echo "$PROG is Up"
+    fi
+  else
+    echo "$PROG is Not Configured on this Host"
+  fi
+}
+
+# Set path if path not set (if called from /etc/rc)
+case $PATH in
+    "") PATH=/bin:/usr/bin:/sbin:/etc
+        export PATH
+        ;;
+esac
+
+
+if [ "$(id -u)" != "0" ]; then
+    echo "You must be root to run this script."
+    exit 1
+fi
+
+# See how we were called
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        dostatus
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac

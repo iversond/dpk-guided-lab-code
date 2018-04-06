@@ -1,0 +1,11 @@
+{
+  "name": "oracle-pt_profiles",
+  "version": "8.56",
+  "author": "Oracle PeopleTools",
+  "summary": "This module is used to specify the different profiles of PeopleSoft environments",
+  "source": "Oracle",
+  "license": "Oracle",
+  "dependencies": [
+    {"version_requirement":">= 1.0.0","name":"puppetlabs-stdlib"}
+  ]
+}

@@ -1,0 +1,96 @@
+#!/bin/bash
+#
+# chkconfig: 35 95 15
+# description: This is a program that is responsible for taking care of
+# Starting the PIA Domains on reboot
+#
+#
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ]; then
+    . /etc/rc.d/init.d/functions
+else
+    exit 1
+fi
+
+unset TMPDIR
+
+# function start PIA domains
+start_pias () {
+   start_ret=0
+
+   return $start_ret
+}
+
+# function stop PIA domains
+stop_pias () {
+   stop_ret=0
+
+   return $stop_ret
+}
+
+start() {
+
+    # start the PIA domains
+    start_pias
+    ret_val=$?
+
+    [ $ret_val -eq 0 ] && touch $LOCKFILE
+    return $ret_val
+}
+
+stop() {
+
+    # stop the PIA domains
+    stop_pias
+    ret_val=$?
+
+    [ $ret_val -eq 0 ] && rm -f $LOCKFILE
+    return $ret_val
+}
+
+restart() {
+    stop
+    start
+}
+
+dostatus() {
+    status_ret=0
+
+    return $status_ret
+}
+
+# Set path if path not set (if called from /etc/rc)
+case $PATH in
+    "") PATH=/bin:/usr/bin:/sbin:/etc
+        export PATH
+        ;;
+esac
+
+
+if [ "$(id -u)" != "0" ]; then
+    echo "You must be root to run this script."
+    exit 1
+fi
+
+LOCKFILE=<%= @services_lock_dir %>/psft-pia
+
+# See how we were called
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        dostatus
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac

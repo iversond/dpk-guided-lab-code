@@ -1,0 +1,5 @@
+---
+ensure: present
+env_type: fulltier
+tools_version: 8.56.06
+domain_type: all

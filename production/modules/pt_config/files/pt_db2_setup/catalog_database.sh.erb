@@ -1,0 +1,7 @@
+#!/bin/sh
+
+<% if db2_type == "DB2ODBC" -%>
+db2 catalog database <%= db2_database_name %> at node <%= db2_node %> authentication DCS
+db2 catalog dcs database <%= db2_database_name %> as <%= db2_target_database_name %>
+db2 terminate
+<% end -%>
