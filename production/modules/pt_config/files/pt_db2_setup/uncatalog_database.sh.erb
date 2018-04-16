@@ -1,7 +1,0 @@
-#!/bin/sh
-
-<% if db2_type == "DB2ODBC" -%>
-db2 uncatalog dcs db <%= db2_database_name %>
-db2 uncatalog database <%= db2_database_name %>
-db2 terminate
-<% end -%>
