@@ -22,5 +22,3 @@
 
   :pkcs7_private_key: c:\psft\dpk\puppet\secure\keys\private_key.pkcs7.pem
   :pkcs7_public_key:  c:\psft\dpk\puppet\secure\keys\public_key.pkcs7.pem
-# pkcs7_private_key: c:\psft\dpk\puppet\secure\keys\private_key.pkcs7.pem
-# pkcs7_public_key:  c:\psft\dpk\puppet\secure\keys\public_key.pkcs7.pem
