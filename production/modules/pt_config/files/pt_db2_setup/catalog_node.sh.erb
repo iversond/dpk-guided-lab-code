@@ -1,6 +1,0 @@
-#!/bin/sh
-
-<% if db2_type == "DB2ODBC" -%>
-db2 catalog tcpip node <%= db2_node %> remote <%= db2_host %> server <%= db2_port %> ostype os390
-db2 terminate
-<% end -%>

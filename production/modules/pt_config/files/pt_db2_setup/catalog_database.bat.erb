@@ -1,9 +1,0 @@
-set DB2CLP=**$$**
-<% if db2_type == "DB2ODBC" -%>
-db2 catalog database <%= db2_database_name %> at node <%= db2_node %> authentication DCS
-db2 catalog dcs database <%= db2_database_name %> as <%= db2_target_database_name %>
-db2 terminate
-REG DELETE "HKLM\SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources" /v <%= db2_database_name %> /F > NUL 2>&1
-REG DELETE "HKLM\SOFTWARE\ODBC\ODBC.INI\<%= db2_database_name %>" /F > NUL 2>&1
-db2cli registerdsn -add -dsn <%= db2_database_name %> -system
-<% end -%>
