@@ -1,0 +1,7 @@
+*
+!.gitignore
+!production/modules/dpk_lab/**
+!hiera.yaml
+!production/data/common.yaml
+!production/data/pwd.yaml
+!production/data/psft_customizations.yaml
