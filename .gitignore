@@ -1,2 +1,3 @@
 *
 !.gitignore
+!production/modules/dpk_lab/**
