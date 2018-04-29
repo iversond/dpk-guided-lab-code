@@ -1,0 +1,10 @@
+*.yaml
+*.conf
+secure\*
+ssl\*
+production\modules\*
+production\manifests\*
+production\data\*
+!hiera.yaml
+!production\modules\dpk_*
+!produciton\data\psft_customizations.yaml
