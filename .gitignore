@@ -6,5 +6,9 @@ production\modules\*
 production\manifests\*
 production\data\*
 !hiera.yaml
+!production/data/common.yaml
+!production/data/pwd.yaml
+!production/data/fs.yaml
+!production/data/hr.yaml
 !production\modules\dpk_*
 !produciton\data\psft_customizations.yaml
