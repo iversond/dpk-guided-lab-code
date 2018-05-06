@@ -1,20 +1,20 @@
 Facter.add(:app) do
     setcode do
-      app = Facter.value(:hostname)[2..3]
+      app = ENV["NODENAME"][2..3]
       app.downcase
     end
   end
   
   Facter.add(:hostnum) do
     setcode do
-      hostnum = Facter.value(:hostname)[7..9]
+      hostnum = ENV["NODENAME"][7..9]
       hostnum
     end
   end
   
   Facter.add(:region) do
     setcode do
-      hostname = Facter.value(:hostname)[4..6]
+      hostname = ENV["NODENAME"][4..6]
       if hostname.downcase.match(/tst/)
         region = "TEST"
       end
