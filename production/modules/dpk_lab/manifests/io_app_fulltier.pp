@@ -1,6 +1,6 @@
-class pt_role::io_app_fulltier inherits pt_role::pt_app_base {
+class dpk_lab::io_app_fulltier inherits dpk_lab::pt_app_base {
 
-  notify { "Applying pt_role::io_app_fulltier": }
+  notify { "Applying dpk_lab::io_app_fulltier": }
 
   $ensure   = hiera('ensure')
   $env_type = hiera('env_type')
