@@ -1,13 +1,25 @@
 *.yaml
 *.conf
 secure
-production
+ssl
+#production
 !hiera.yaml
 !production/data/common.yaml
 !production/data/pwd.yaml
 !production/data/fs.yaml
 !production/data/hr.yaml
+!produciton/data/psft_customizations.yaml
 !production/modules/dpk_*
 !production/modules/io_*
 !production/modules/inifile*
-!produciton/data/psft_customizations.yaml
+# adv lab - environemnts changes
+data/*
+modules/*
+!data/common.yaml
+!data/pwd.yaml
+!data/fs.yaml
+!data/hr.yaml
+!data/psft_customizations.yaml
+!modules/dpk_*
+!modules/io_*
+!modules/inifile*

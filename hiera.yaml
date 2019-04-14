@@ -4,6 +4,7 @@
   - yaml
 
 :hierarchy:
+  - environment/%{::environment}
   - defaults
   - psft_customizations
   - "%{:app}"
@@ -15,10 +16,10 @@
   - psft_patches
 
 :yaml:
-  :datadir: c:\psft\dpk\puppet\production\data
+  :datadir: c:\psft\dpk\puppet\data
 
 :eyaml:
-  :datadir:   c:\psft\dpk\puppet\production\data
+  :datadir:   c:\psft\dpk\puppet\data
   :extension: 'yaml'
 
   :pkcs7_private_key: c:\psft\dpk\puppet\secure\keys\private_key.pkcs7.pem
