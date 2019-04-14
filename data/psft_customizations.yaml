@@ -1,5 +1,10 @@
 ---
 
+io_portalwar::text_properties:
+  "%{hiera('pia_domain_name')}":
+    "%{hiera('pia_site_name')}":
+      '138':  'psadmin.conf 2019 Signon'
+
 peoplesoft_base:        c:/psft
 db_name:                PSFTDB
 db_name_downcase:       psftdb
@@ -96,6 +101,8 @@ pia_domain_list:
           profile_user_pwd:    "%{hiera('webserver_pwd')}"
 
         report_repository_dir: "%{hiera('report_repository_dir')}"
+        #io_portalwar::text_properties:
+        #  '138':               "psadmin.conf 2019 Signon"
 
 prcs_domain_list:
   "%{hiera('prcs_domain_name')}":

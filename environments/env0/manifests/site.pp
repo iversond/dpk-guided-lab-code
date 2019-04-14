@@ -19,5 +19,5 @@
  * ***************************************************************
  */
 node default {
-  include  ::pt_role::pt_fscm_pum
+  include  ::dpk_lab::io_app_fulltier
 }
