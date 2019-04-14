@@ -96,3 +96,9 @@ pia_domain_list:
           profile_user_pwd:    "%{hiera('webserver_pwd')}"
 
         report_repository_dir: "%{hiera('report_repository_dir')}"
+
+prcs_domain_list:
+  "%{hiera('prcs_domain_name')}":
+    feature_settings:
+      MSTRSRV:      "Yes"
+      APPENG:       "No"
