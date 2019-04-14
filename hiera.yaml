@@ -12,13 +12,11 @@
   - psft_patches
 
 :yaml:
-  :datadir: /opt/oracle/psft/dpk/puppet/production/data
+  :datadir: c:\psft\dpk\puppet\production\data
 
 :eyaml:
-  :datadir:   /opt/oracle/psft/dpk/puppet/production/data
+  :datadir:   c:\psft\dpk\puppet\production\data
   :extension: 'yaml'
 
-  :pkcs7_private_key: /opt/oracle/psft/dpk/puppet/secure/keys/private_key.pkcs7.pem
-  :pkcs7_public_key:  /opt/oracle/psft/dpk/puppet/secure/keys/public_key.pkcs7.pem
-
-:merge_behavior: deeper
+  :pkcs7_private_key: c:\psft\dpk\puppet\secure\keys\private_key.pkcs7.pem
+  :pkcs7_public_key:  c:\psft\dpk\puppet\secure\keys\public_key.pkcs7.pem
