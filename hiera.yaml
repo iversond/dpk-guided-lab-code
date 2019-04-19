@@ -6,7 +6,7 @@
 :hierarchy:
   - defaults
   - psft_customizations
-  - "%{:app}"
+  - "%{::app}"
   - pwd
   - common
   - psft_unix_system
