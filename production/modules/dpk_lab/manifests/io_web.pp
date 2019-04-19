@@ -1,5 +1,4 @@
 class dpk_lab::io_web {
-   require ::pt_profile::pt_pia
 
   $pia_domain_list = hiera('pia_domain_list')
   $pia_domain_list.each | $domain_name, $pia_domain_info | {
@@ -16,18 +15,6 @@ class dpk_lab::io_web {
         source => "puppet:///modules/dpk_lab/dpk-lab-logo-${::app}.png",
       }
 
-      # TODO
-      #$text_properties = $site_info['text_properties']
-      #$text_properties.each | $key, $value | {
-      #  ini_setting { "${domain_name}-${site_name}-text-${key}":
-      #    ensure            => present,
-      #    path              => "${portal_path}/WEB-INF/psftdocs/${site_name}/text.properties",
-      #    setting           => $key,
-      #    value             => $value,
-      #    key_val_separator => '=',
-      #    section           => '',
-      #  }
-      #}
     } # end-site
 
   } # end-pia
