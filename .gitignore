@@ -17,6 +17,6 @@ production/data/*
 !production/manifests/*
 !production/modules/
 production/modules/*
-!production/modules/dpk_*
-!production/modules/io_*
-!production/modules/inifile*
+!production/modules/dpk_**
+!production/modules/io_**
+!production/modules/inifile**
