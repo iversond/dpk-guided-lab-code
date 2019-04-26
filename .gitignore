@@ -4,9 +4,9 @@
 #secure
 #production
 !.gitignore
+!hiera.yaml
 !production/
 production/*
-!production/hiera.yaml
 !production/data/
 production/data/*
 !production/data/common.yaml
