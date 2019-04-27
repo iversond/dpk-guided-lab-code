@@ -19,5 +19,5 @@
  * ***************************************************************
  */
 node default {
-  include  ::dpk_lab::io_app_fulltier.pp
+  include  ::dpk_lab::io_app_fulltier
 }
